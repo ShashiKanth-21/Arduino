@@ -92,7 +92,7 @@
 #define vsense  167.00239//91.82736455//167.002349-6s  // 9.95 k +49.63k = 59.58 (r1/r1+r2)*1000 (for 50v : 10/108.9 *  )
 #define isense2 30.095     // TBD
 #define vsense2 167.002349 // TBD
-#define isense3 29.025     // TBD
+#define isense3 30.000     // TBD
 /*=========================================================================*/
 
 /*===================================================================002349======
@@ -297,22 +297,25 @@ void sens_calibrate()
 void ads_read()
 {
   float multiplier = 0.1875F; // multiplier based on gain setting 2/3x
+  float temp;
   volt = curr = 0;
   for (int i = 0; i < 3; i++)
   {
     volt += (ads.readADC_SingleEnded(0)) / vsense * multiplier;
     // volt2 += (ads.readADC_SingleEnded(1))/vsense2*multiplier;
-    if(ads.readADC_SingleEnded(1)<=15000)
+    temp = ads.readADC_SingleEnded(1);
+    if(temp<=15000)
     {
-      curr += -(ads.readADC_SingleEnded(1) - cerr) *  multiplier / isense;
+      curr += (temp - cerr) *  multiplier / isense;
+      
     }
-    else if(15000 < ads.readADC_SingleEnded(1) <= 16000)
+    else if(15000 < temp  && temp < 16000)
     {
-      curr += -(ads.readADC_SingleEnded(1) - cerr) *  multiplier / isense2;
+      curr += (temp - cerr) *  multiplier / isense2;
     }
     else
     {
-      curr += -(ads.readADC_SingleEnded(1) - cerr) *  multiplier / isense3;
+      curr += (temp - cerr) *  multiplier / isense3;
     }
     // curr2 += (ads.readADC_SingleEnded(3)-cerr2)/isense2*multiplier;
     // curr3 += (ads2.readADC_SingleEnded(2)-cerr3)/isense3*multiplier;
@@ -334,6 +337,8 @@ void serial_print()
   Serial.print(torque, 3);
   Serial.print(",");
   Serial.print(rpm);
+  Serial.print(",");
+  Serial.print(ads.readADC_SingleEnded(1));
   Serial.print(",");
   Serial.print(pwmVal);
   Serial.println();
