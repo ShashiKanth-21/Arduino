@@ -12,16 +12,24 @@ void setup() {
   throttle.attach(THROTTLE_PIN);
   
   pinMode(BUTTON_PIN, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), toggleThrottle, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), toggleThrottle, FALLING);
 }
 
-void loop() {
-  if (throttleActive) {
-    for (int pwmValue = 1000; pwmValue <= 2000; pwmValue += 50) {
+void loop() 
+{
+  for (int pwmValue = 1000; pwmValue <= 2000; pwmValue += 50)
+  {
+    if (throttleActive)
+    {
       setThrottle(pwmValue);
-      delay(5000);  // Delay for 1 second before changing throttle
-      Serial.println(pwmValue); // Print PWM value to serial monitor
     }
+    else
+    {
+      setThrottle(1000);
+      break;
+    }
+    delay(1000);  // Delay for 1 second before changing throttle
+    Serial.println(pwmValue); // Print PWM value to serial monitor
   }
 }
 
@@ -31,5 +39,4 @@ void setThrottle(int pwmValue) {
 
 void toggleThrottle() {
   throttleActive = !throttleActive;
-  delay(500);  // Debounce delay
 }
